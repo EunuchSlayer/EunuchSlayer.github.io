@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cheng Hao | Quant & Algo Trading</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0c0f;
+      --bg2: #0e1117;
+      --bg3: #141820;
+      --panel: #111520;
+      --border: #1e2535;
+      --border2: #252d3d;
+      --accent: #f5a623;
+      --accent2: #00d4aa;
+      --accent3: #4a9eff;
+      --red: #ff4e4e;
+      --text: #c8d0e0;
+      --text-dim: #5a6478;
+      --text-mid: #8892a4;
+      --white: #e8ecf4;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Noise overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* Ticker tape */
+    .ticker {
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      padding: 6px 0;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      position: relative;
+      z-index: 10;
+    }
+
+    .ticker-inner {
+      display: flex;
+      animation: ticker 30s linear infinite;
+      white-space: nowrap;
+    }
+
+    .ticker-item {
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ticker-item .sym { color: var(--white); font-weight: 500; }
+    .ticker-item .up { color: var(--accent2); }
+    .ticker-item .dn { color: var(--red); }
+
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Nav */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 12, 15, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 52px;
+    }
+
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .nav-logo span { color: var(--text-dim); font-weight: 300; }
+
+    .nav-links {
+      display: flex;
+      gap: 2px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 2px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: all 0.15s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+      background: rgba(245, 166, 35, 0.06);
+    }
+
+    .nav-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent2);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* Sections */
+    section {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-left {
+      padding: 80px 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-right: 1px solid var(--border);
+    }
+
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hero-tag::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    h1 {
+      font-family: var(--mono);
+      font-size: clamp(36px, 4vw, 54px);
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .hero-subtitle {
+      font-family: var(--mono);
+      font-size: clamp(16px, 2vw, 22px);
+      font-weight: 300;
+      color: var(--accent);
+      margin-bottom: 32px;
+    }
+
+    .hero-desc {
+      font-size: 15px;
+      color: var(--text-mid);
+      line-height: 1.8;
+      max-width: 480px;
+      margin-bottom: 48px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--accent);
+      border: none;
+      padding: 12px 28px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    }
+
+    .btn-primary:hover { background: #f7b73a; transform: translateY(-1px); }
+
+    .btn-secondary {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      background: transparent;
+      border: 1px solid var(--border2);
+      padding: 12px 28px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Hero right — data panel */
+    .hero-right {
+      padding: 60px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      background: var(--bg2);
+    }
+
+    .panel-header {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-header .live {
+      color: var(--accent2);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .stat-cell {
+      background: var(--panel);
+      padding: 18px 20px;
+    }
+
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--white);
+    }
+
+    .stat-value.green { color: var(--accent2); }
+    .stat-value.orange { color: var(--accent); }
+    .stat-value.blue { color: var(--accent3); }
+
+    .stat-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    /* Skill bar */
+    .skill-bars { display: flex; flex-direction: column; gap: 10px; }
+
+    .skill-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .skill-name { color: var(--text-mid); width: 100px; flex-shrink: 0; }
+
+    .skill-track {
+      flex: 1;
+      height: 3px;
+      background: var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skill-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent2), var(--accent3));
+      animation: fillBar 1.5s ease forwards;
+      transform-origin: left;
+    }
+
+    @keyframes fillBar {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    .skill-pct { color: var(--text-dim); width: 36px; text-align: right; }
+
+    /* Section layout */
+    .section-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 96px 40px;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      max-width: 60px;
+    }
+
+    h2 {
+      font-family: var(--mono);
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 48px;
+    }
+
+    /* About */
+    #about { background: var(--bg); border-bottom: 1px solid var(--border); }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    .about-text p {
+      color: var(--text-mid);
+      font-size: 15px;
+      line-height: 1.9;
+      margin-bottom: 18px;
+    }
+
+    .about-text p strong { color: var(--white); font-weight: 500; }
+
+    .highlight-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 20px 24px;
+      margin-top: 28px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-mid);
+      line-height: 1.7;
+    }
+
+    .about-aside { display: flex; flex-direction: column; gap: 16px; }
+
+    .info-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 20px 24px;
+    }
+
+    .info-card-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+
+    .info-card-body {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.7;
+    }
+
+    .info-card-body strong { color: var(--white); }
+
+    /* Projects */
+    #projects { background: var(--bg2); border-bottom: 1px solid var(--border); }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .project-card {
+      background: var(--panel);
+      padding: 32px;
+      transition: background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .project-card:hover { background: #141a26; }
+    .project-card:hover::before { opacity: 1; }
+
+    .project-card.featured { grid-column: 1 / -1; }
+
+    .project-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(245, 166, 35, 0.08);
+      border: 1px solid rgba(245, 166, 35, 0.2);
+      padding: 3px 10px;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+
+    .project-tag.teal {
+      color: var(--accent2);
+      background: rgba(0, 212, 170, 0.08);
+      border-color: rgba(0, 212, 170, 0.2);
+    }
+
+    .project-tag.blue {
+      color: var(--accent3);
+      background: rgba(74, 158, 255, 0.08);
+      border-color: rgba(74, 158, 255, 0.2);
+    }
+
+    .project-title {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+
+    .project-desc {
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+
+    .project-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .meta-chip {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      letter-spacing: 0.05em;
+    }
+
+    .project-links {
+      display: flex;
+      gap: 12px;
+    }
+
+    .project-link {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s;
+      letter-spacing: 0.06em;
+    }
+
+    .project-link:hover { color: var(--accent); }
+
+    /* Featured layout */
+    .featured-inner {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .featured-diagram {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 24px;
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .diagram-title {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      margin-bottom: 4px;
+      color: var(--text-mid);
+    }
+
+    .flow-step .step-num {
+      font-size: 10px;
+      color: var(--text-dim);
+      width: 16px;
+    }
+
+    .flow-step .step-label { flex: 1; }
+
+    .flow-step .step-badge {
+      font-size: 9px;
+      padding: 2px 7px;
+      background: rgba(245, 166, 35, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(245, 166, 35, 0.2);
+    }
+
+    .flow-arrow {
+      text-align: center;
+      color: var(--border2);
+      font-size: 14px;
+      margin: 2px 0;
+    }
+
+    /* Skills */
+    #skills { background: var(--bg); border-bottom: 1px solid var(--border); }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .skill-category {
+      background: var(--panel);
+      padding: 28px 28px;
+    }
+
+    .skill-cat-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .skill-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .skill-list li {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-mid);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .skill-list li::before {
+      content: '▸';
+      color: var(--accent2);
+      font-size: 9px;
+    }
+
+    /* Experience */
+    #experience { background: var(--bg2); border-bottom: 1px solid var(--border); }
+
+    .exp-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); }
+
+    .exp-item {
+      background: var(--panel);
+      padding: 32px 36px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 40px;
+      align-items: start;
+      transition: background 0.2s;
+    }
+
+    .exp-item:hover { background: #141a26; }
+
+    .exp-meta { }
+
+    .exp-period {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .exp-company {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-mid);
+    }
+
+    .exp-location {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    .exp-content { }
+
+    .exp-title {
+      font-family: var(--mono);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+
+    .exp-desc {
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.8;
+    }
+
+    .exp-desc li { margin-bottom: 6px; margin-left: 18px; }
+
+    /* Contact */
+    #contact {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    .contact-text h2 { margin-bottom: 20px; }
+
+    .contact-text p {
+      font-size: 15px;
+      color: var(--text-mid);
+      line-height: 1.8;
+      margin-bottom: 36px;
+    }
+
+    .contact-links { display: flex; flex-direction: column; gap: 12px; }
+
+    .contact-link {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-mid);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      transition: all 0.2s;
+    }
+
+    .contact-link:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .contact-link .link-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .contact-link .link-label { flex: 1; }
+
+    .contact-link .link-url {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .contact-aside {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 32px;
+    }
+
+    .contact-aside-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .interest-tag {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-mid);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      margin: 0 6px 8px 0;
+      transition: all 0.15s;
+    }
+
+    .interest-tag:hover {
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--bg3);
+      border-top: 1px solid var(--border);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* Animations */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-right { display: none; }
+      .hero-left { padding: 60px 32px; }
+      .about-grid, .contact-grid, .featured-inner { grid-template-columns: 1fr; }
+      .exp-item { grid-template-columns: 1fr; gap: 12px; }
+      nav { padding: 0 20px; }
+      .section-wrap { padding: 64px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ticker -->
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span class="ticker-item"><span class="sym">SPY</span> <span class="up">▲ 0.42%</span> · Options / Derivatives</span>
+      <span class="ticker-item"><span class="sym">VIX</span> <span class="dn">▼ 1.3%</span> · Regime Classification</span>
+      <span class="ticker-item"><span class="sym">GAMMA</span> <span class="up">▲ SCALPER</span> · Algo Trading Bot</span>
+      <span class="ticker-item"><span class="sym">IRON CONDOR</span> · 0DTE Setups · Supply & Demand Zones</span>
+      <span class="ticker-item"><span class="sym">LEAPS</span> · PMCC Structures · Delta Hedging</span>
+      <span class="ticker-item"><span class="sym">PYTHON</span> · pandas · pandas_ta · Alpaca API</span>
+      <!-- duplicate for seamless loop -->
+      <span class="ticker-item"><span class="sym">SPY</span> <span class="up">▲ 0.42%</span> · Options / Derivatives</span>
+      <span class="ticker-item"><span class="sym">VIX</span> <span class="dn">▼ 1.3%</span> · Regime Classification</span>
+      <span class="ticker-item"><span class="sym">GAMMA</span> <span class="up">▲ SCALPER</span> · Algo Trading Bot</span>
+      <span class="ticker-item"><span class="sym">IRON CONDOR</span> · 0DTE Setups · Supply & Demand Zones</span>
+      <span class="ticker-item"><span class="sym">LEAPS</span> · PMCC Structures · Delta Hedging</span>
+      <span class="ticker-item"><span class="sym">PYTHON</span> · pandas · pandas_ta · Alpaca API</span>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-logo">CH<span> / Portfolio</span></div>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Quant</a></li>
+      <li><a href="#ai-projects">AI & Software</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-status">
+      <div class="status-dot"></div>
+      Open to opportunities
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-tag">Quant & Algo Trading</div>
+      <h1>Cheng Hao</h1>
+      <div class="hero-subtitle">// derivatives · systems · data</div>
+      <p class="hero-desc">
+        CS & Business graduate from NTU, currently at Moody's Analytics. Building at the intersection of credit risk, options derivatives, and systematic trading — with a gamma-scalper bot to show for it.
+      </p>
+      <div class="hero-ctas">
+        <a href="#projects" class="btn-primary">View Projects ↓</a>
+        <a href="#contact" class="btn-secondary">Get in Touch</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="panel-header">
+        System Snapshot
+        <span class="live"><span class="status-dot"></span> LIVE</span>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-cell">
+          <div class="stat-label">Strategy Engine</div>
+          <div class="stat-value orange">5</div>
+          <div class="stat-sub">Options strategies mapped</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Regime Signals</div>
+          <div class="stat-value green">6</div>
+          <div class="stat-sub">RSI · EMA · VWAP · BB · VIX · SMA</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Consensus Threshold</div>
+          <div class="stat-value blue">3+</div>
+          <div class="stat-sub">Signals required to trigger</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Broker</div>
+          <div class="stat-value orange">ALP</div>
+          <div class="stat-sub">Alpaca Paper Trading</div>
+        </div>
+      </div>
+      <div style="padding-top: 4px;">
+        <div class="panel-header" style="margin-bottom: 16px;">Proficiency</div>
+        <div class="skill-bars">
+          <div class="skill-row">
+            <span class="skill-name">Python</span>
+            <div class="skill-track"><div class="skill-fill" style="width:90%"></div></div>
+            <span class="skill-pct">90%</span>
+          </div>
+          <div class="skill-row">
+            <span class="skill-name">Options</span>
+            <div class="skill-track"><div class="skill-fill" style="width:78%"></div></div>
+            <span class="skill-pct">78%</span>
+          </div>
+          <div class="skill-row">
+            <span class="skill-name">Macro</span>
+            <div class="skill-track"><div class="skill-fill" style="width:70%"></div></div>
+            <span class="skill-pct">70%</span>
+          </div>
+          <div class="skill-row">
+            <span class="skill-name">Sys Design</span>
+            <div class="skill-track"><div class="skill-fill" style="width:82%"></div></div>
+            <span class="skill-pct">82%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about">
+    <div class="section-wrap">
+      <div class="section-label">01 — About</div>
+      <div class="about-grid fade-in">
+        <div class="about-text">
+          <p>
+            I'm a <strong>Computer Science & Business double degree graduate from NTU</strong>, currently working at <strong>Moody's Analytics Singapore</strong> in a product and credit risk solutioning role.
+          </p>
+          <p>
+            Alongside my day job, I've been on a self-directed journey into <strong>options derivatives, systematic trading, and macroeconomic analysis</strong> — driven by genuine curiosity about how markets price risk, and how to build systems that can act on it.
+          </p>
+          <p>
+            My flagship project is a <strong>regime-aware gamma-scalper bot</strong> targeting SPY options — a system that classifies market conditions across 6 indicators and dynamically selects from 5 options strategies. I've worked through the full stack: strategy design, technical architecture, broker API integration, and the hard lessons of real-world debugging.
+          </p>
+          <p>
+            I target roles at the intersection of <strong>quantitative finance and systems engineering</strong> — equities derivatives, algo trading, and quant research.
+          </p>
+          <div class="highlight-box">
+            "I try to be honest about what I've built versus what I've designed. The gamma-scalper is a research-stage system — but the thinking behind it is real, and that's what I'm here to show."
+          </div>
+        </div>
+        <div class="about-aside">
+          <div class="info-card">
+            <div class="info-card-title">Education</div>
+            <div class="info-card-body">
+              <strong>Nanyang Technological University</strong><br>
+              B.Eng Computer Science<br>
+              + Business (Double Degree)
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-title">Currently</div>
+            <div class="info-card-body">
+              <strong>Moody's Analytics</strong><br>
+              Product / Credit Risk Solutioning<br>
+              Singapore
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-title">Targeting</div>
+            <div class="info-card-body">
+              Equities Derivatives · Algo Trading<br>
+              Quantitative Trader / Researcher roles<br>
+              <strong>Open to internships & full-time</strong>
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-title">Based In</div>
+            <div class="info-card-body">
+              <strong>Singapore</strong> · Jurong West
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section id="projects">
+    <div class="section-wrap">
+      <div class="section-label">02 — Trading & Quant</div>
+      <h2>Quant Projects</h2>
+      <div class="projects-grid">
+
+        <!-- Featured project -->
+        <div class="project-card featured fade-in">
+          <div class="project-tag">⭐ Featured</div>
+          <div class="featured-inner">
+            <div>
+              <div class="project-title">Gamma-Scalper Bot</div>
+              <p class="project-desc">
+                A regime-aware options strategy engine targeting SPY. Uses a 6-indicator classification system (RSI, EMA crossover, VWAP, Bollinger Bands %B, VIX, SMA-50) with a consensus voting mechanism — requiring 3+ agreeing signals before triggering any trade. Each detected regime maps to one of 5 options strategies (e.g. trending up → bull call spread, high vol → iron condor).
+              </p>
+              <p class="project-desc">
+                Built in Python with pandas_ta for indicator computation and Alpaca API for paper trading execution. Previously integrated with IBKR TWS via ib_insync before pivoting to Alpaca after persistent gateway connection issues — a real-world engineering tradeoff that shaped the architecture.
+              </p>
+              <div class="project-meta">
+                <span class="meta-chip">Python</span>
+                <span class="meta-chip">pandas</span>
+                <span class="meta-chip">pandas_ta</span>
+                <span class="meta-chip">Alpaca API</span>
+                <span class="meta-chip">ib_insync</span>
+                <span class="meta-chip">SPY Options</span>
+                <span class="meta-chip">Paper Trading</span>
+              </div>
+              <div class="project-links">
+                <a href="https://github.com/YOUR_USERNAME/gamma-scalper" class="project-link" target="_blank">⌥ GitHub Repo</a>
+                <a href="#" class="project-link">⌘ Case Study</a>
+              </div>
+            </div>
+            <div class="featured-diagram">
+              <div class="diagram-title">System Architecture</div>
+              <div class="flow-step">
+                <span class="step-num">01</span>
+                <span class="step-label">Market Data Feed</span>
+                <span class="step-badge">Alpaca</span>
+              </div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-step">
+                <span class="step-num">02</span>
+                <span class="step-label">6-Indicator Regime Classifier</span>
+                <span class="step-badge">pandas_ta</span>
+              </div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-step">
+                <span class="step-num">03</span>
+                <span class="step-label">Consensus Voting (3+ signals)</span>
+                <span class="step-badge">Logic</span>
+              </div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-step">
+                <span class="step-num">04</span>
+                <span class="step-label">Strategy Selector (5 strategies)</span>
+                <span class="step-badge">Engine</span>
+              </div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-step">
+                <span class="step-num">05</span>
+                <span class="step-label">Order Execution</span>
+                <span class="step-badge">Paper</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="project-card fade-in">
+          <div class="project-tag teal">Options Research</div>
+          <div class="project-title">Iron Condor & 0DTE Strategy Framework</div>
+          <p class="project-desc">
+            Personal research framework for iron condor setups on SPY, including 0DTE configurations. Incorporates supply & demand zone analysis, EMA5/14/20 signals, and RSI for entry timing. Documented trade logic and regime conditions under which each setup is appropriate.
+          </p>
+          <div class="project-meta">
+            <span class="meta-chip">Options Strategy</span>
+            <span class="meta-chip">0DTE</span>
+            <span class="meta-chip">Iron Condor</span>
+            <span class="meta-chip">EMA</span>
+            <span class="meta-chip">RSI</span>
+          </div>
+          <div class="project-links">
+            <a href="#" class="project-link">⌘ Write-up</a>
+          </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="project-card fade-in">
+          <div class="project-tag blue">Macro / Derivatives</div>
+          <div class="project-title">LEAPS & PMCC Strategy Research</div>
+          <p class="project-desc">
+            Deep-dive into LEAPS and Poor Man's Covered Call structures on SPY. Analyzed how to position for a short-term bearish, long-term bullish outlook using long-dated options, with strike and expiry selection logic under different implied volatility regimes.
+          </p>
+          <div class="project-meta">
+            <span class="meta-chip">LEAPS</span>
+            <span class="meta-chip">PMCC</span>
+            <span class="meta-chip">SPY</span>
+            <span class="meta-chip">IV Analysis</span>
+            <span class="meta-chip">Delta</span>
+          </div>
+          <div class="project-links">
+            <a href="#" class="project-link">⌘ Write-up</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- AI & Software Projects -->
+  <section id="ai-projects" style="background: var(--bg); border-bottom: 1px solid var(--border);">
+    <div class="section-wrap">
+      <div class="section-label">03 — AI & Software</div>
+      <h2>AI & Software Projects</h2>
+      <p style="font-size:14px; color:var(--text-dim); font-family:var(--mono); margin-bottom: 36px; max-width: 640px; line-height:1.8;">
+        Beyond trading, I build agentic AI tools — systems that automate workflows, personalise experiences, and demonstrate end-to-end product thinking with LLMs.
+      </p>
+      <div class="projects-grid">
+
+        <!-- Resume Tailor Agent -->
+        <div class="project-card fade-in">
+          <div class="project-tag" style="color:var(--accent3); background:rgba(74,158,255,0.08); border-color:rgba(74,158,255,0.2);">🤖 AI Agent</div>
+          <div class="project-title">Resume Tailor Agent</div>
+          <p class="project-desc">
+            An agentic system that takes a job description and a base resume, then rewrites and tailors the resume to maximise relevance — adjusting language, reordering bullet points, and surfacing the most applicable experience. Built to solve a real pain point in high-volume job applications.
+          </p>
+          <p class="project-desc">
+            Demonstrates prompt engineering, multi-step LLM orchestration, and structured output parsing to produce clean, ready-to-use documents.
+          </p>
+          <div class="project-meta">
+            <span class="meta-chip">Python</span>
+            <span class="meta-chip">LLM Orchestration</span>
+            <span class="meta-chip">Prompt Engineering</span>
+            <span class="meta-chip">Agentic AI</span>
+            <span class="meta-chip">NLP</span>
+          </div>
+          <div class="project-links">
+            <a href="https://github.com/YOUR_USERNAME/resume-tailor-agent" class="project-link" target="_blank">⌥ GitHub Repo</a>
+          </div>
+        </div>
+
+        <!-- Workout Generator -->
+        <div class="project-card fade-in">
+          <div class="project-tag" style="color:var(--accent2); background:rgba(0,212,170,0.08); border-color:rgba(0,212,170,0.2);">💪 AI App</div>
+          <div class="project-title">Workout Generator Agent</div>
+          <p class="project-desc">
+            A personalised workout planner powered by an AI agent. Takes user inputs — fitness goals, available equipment, schedule, and experience level — and generates structured, progressive workout plans. Handles periodisation logic and adjusts recommendations across sessions.
+          </p>
+          <p class="project-desc">
+            Focuses on producing genuinely useful, personalised output rather than generic advice — a product-thinking challenge as much as a technical one.
+          </p>
+          <div class="project-meta">
+            <span class="meta-chip">Python</span>
+            <span class="meta-chip">LLM</span>
+            <span class="meta-chip">Personalisation</span>
+            <span class="meta-chip">Agentic AI</span>
+            <span class="meta-chip">Structured Output</span>
+          </div>
+          <div class="project-links">
+            <a href="https://github.com/YOUR_USERNAME/workout-generator" class="project-link" target="_blank">⌥ GitHub Repo</a>
+          </div>
+        </div>
+
+        <!-- Journal Agent -->
+        <div class="project-card fade-in">
+          <div class="project-tag" style="color:#c084fc; background:rgba(192,132,252,0.08); border-color:rgba(192,132,252,0.2);">📓 AI Agent</div>
+          <div class="project-title">Journal Agent</div>
+          <p class="project-desc">
+            An AI-powered journaling companion that goes beyond simple note-taking. Prompts for reflection, identifies recurring themes across entries, and surfaces patterns in mood, goals, and habits over time. Designed to feel like a thoughtful conversation partner rather than a form.
+          </p>
+          <p class="project-desc">
+            Explores long-context memory, conversational UX design, and how to build AI tools that feel human without overstepping.
+          </p>
+          <div class="project-meta">
+            <span class="meta-chip">Python</span>
+            <span class="meta-chip">LLM</span>
+            <span class="meta-chip">Memory / Context</span>
+            <span class="meta-chip">Agentic AI</span>
+            <span class="meta-chip">UX Design</span>
+          </div>
+          <div class="project-links">
+            <a href="https://github.com/YOUR_USERNAME/journal-agent" class="project-link" target="_blank">⌥ GitHub Repo</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills -->
+  <section id="skills">
+    <div class="section-wrap">
+      <div class="section-label">04 — Skills & Tools</div>
+      <h2>Technical Stack</h2>
+      <div class="skills-grid fade-in">
+        <div class="skill-category">
+          <div class="skill-cat-title">Languages</div>
+          <ul class="skill-list">
+            <li>Python (primary)</li>
+            <li>SQL</li>
+            <li>JavaScript</li>
+            <li>Java</li>
+          </ul>
+        </div>
+        <div class="skill-category">
+          <div class="skill-cat-title">Quant / Trading</div>
+          <ul class="skill-list">
+            <li>pandas · numpy</li>
+            <li>pandas_ta</li>
+            <li>ib_insync (IBKR)</li>
+            <li>Alpaca Trade API</li>
+          </ul>
+        </div>
+        <div class="skill-category">
+          <div class="skill-cat-title">Options Knowledge</div>
+          <ul class="skill-list">
+            <li>Iron Condors / 0DTE</li>
+            <li>LEAPS / PMCC</li>
+            <li>Vertical Spreads</li>
+            <li>Greeks (Delta, Gamma, Vega)</li>
+          </ul>
+        </div>
+        <div class="skill-category">
+          <div class="skill-cat-title">Analysis</div>
+          <ul class="skill-list">
+            <li>Technical Analysis (EMA, RSI, VWAP)</li>
+            <li>Supply & Demand Zones</li>
+            <li>Regime Classification</li>
+            <li>Macroeconomic Research</li>
+          </ul>
+        </div>
+        <div class="skill-category">
+          <div class="skill-cat-title">Finance Domain</div>
+          <ul class="skill-list">
+            <li>Credit Risk Modelling</li>
+            <li>Financial Solutioning</li>
+            <li>Risk & Regulatory Frameworks</li>
+            <li>Moody's Analytics Platform</li>
+          </ul>
+        </div>
+        <div class="skill-category">
+          <div class="skill-cat-title">AI & Agents</div>
+          <ul class="skill-list">
+            <li>LLM Orchestration</li>
+            <li>Prompt Engineering</li>
+            <li>Agentic Workflows</li>
+            <li>Structured Output / Parsing</li>
+          </ul>
+        </div>
+        <div class="skill-category">
+          <div class="skill-cat-title">Tools & Infra</div>
+          <ul class="skill-list">
+            <li>Git / GitHub</li>
+            <li>macOS · Terminal</li>
+            <li>Jupyter Notebooks</li>
+            <li>AI-augmented development</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Experience -->
+  <section id="experience">
+    <div class="section-wrap">
+      <div class="section-label">05 — Experience</div>
+      <h2>Career</h2>
+      <div class="exp-list">
+        <div class="exp-item fade-in">
+          <div class="exp-meta">
+            <div class="exp-period">2023 — Present</div>
+            <div class="exp-company">Moody's Analytics</div>
+            <div class="exp-location">Singapore</div>
+          </div>
+          <div class="exp-content">
+            <div class="exp-title">Product & Credit Risk Solutioning</div>
+            <ul class="exp-desc">
+              <li>Work with clients across APAC on credit risk modelling and financial analytics solutions</li>
+              <li>Bridge technical platform capabilities with client business requirements</li>
+              <li>Leverage AI and automation tools in professional workflows — applied to data analysis and solutioning efficiency</li>
+              <li>Developed deep understanding of risk frameworks, regulatory requirements, and financial data</li>
+            </ul>
+          </div>
+        </div>
+        <div class="exp-item fade-in">
+          <div class="exp-meta">
+            <div class="exp-period">Self-Directed</div>
+            <div class="exp-company">Personal Research</div>
+            <div class="exp-location">Singapore</div>
+          </div>
+          <div class="exp-content">
+            <div class="exp-title">Algorithmic Trading & Options Research</div>
+            <ul class="exp-desc">
+              <li>Built and iterated on a regime-aware gamma-scalper bot targeting SPY options (Python, Alpaca API)</li>
+              <li>Developed expertise in options strategies: iron condors, LEAPS/PMCC, vertical spreads, 0DTE setups</li>
+              <li>Applied macroeconomic analysis to options strategy selection under different geopolitical/vol regimes</li>
+              <li>Studied market microstructure, liquidity grabs, and technical analysis frameworks</li>
+            </ul>
+          </div>
+        </div>
+        <div class="exp-item fade-in">
+          <div class="exp-meta">
+            <div class="exp-period">2019 — 2023</div>
+            <div class="exp-company">Nanyang Technological University</div>
+            <div class="exp-location">Singapore</div>
+          </div>
+          <div class="exp-content">
+            <div class="exp-title">B.Eng Computer Science + Business (Double Degree)</div>
+            <ul class="exp-desc">
+              <li>Double degree program combining software engineering depth with business strategy</li>
+              <li>Coursework spanning algorithms, data structures, systems programming, finance, and management</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <div class="section-wrap">
+      <div class="section-label">06 — Contact</div>
+      <div class="contact-grid fade-in">
+        <div class="contact-text">
+          <h2>Let's Connect</h2>
+          <p>
+            I'm actively exploring opportunities in equities derivatives, algorithmic trading, and quantitative research. If you're working on something at the intersection of markets and systems, I'd like to hear about it.
+          </p>
+          <div class="contact-links">
+            <a href="/cdn-cgi/l/email-protection#d881978d8a879d9599919498bfb5b9b1b4f6bbb7b5" class="contact-link">
+              <div class="link-icon">✉</div>
+              <span class="link-label">Email</span>
+              <span class="link-url"><span class="__cf_email__" data-cfemail="bde4f2e8efe2f8f0fcf4f1fddad0dcd4d193ded2d0">[email&#160;protected]</span></span>
+            </a>
+            <a href="https://linkedin.com/in/YOUR_LINKEDIN" class="contact-link" target="_blank">
+              <div class="link-icon">in</div>
+              <span class="link-label">LinkedIn</span>
+              <span class="link-url">linkedin.com/in/YOUR_LINKEDIN</span>
+            </a>
+            <a href="https://github.com/YOUR_USERNAME" class="contact-link" target="_blank">
+              <div class="link-icon">⌥</div>
+              <span class="link-label">GitHub</span>
+              <span class="link-url">github.com/YOUR_USERNAME</span>
+            </a>
+          </div>
+        </div>
+        <div class="contact-aside">
+          <div class="contact-aside-title">Areas of Interest</div>
+          <div>
+            <span class="interest-tag">Options Derivatives</span>
+            <span class="interest-tag">Algorithmic Trading</span>
+            <span class="interest-tag">Quant Research</span>
+            <span class="interest-tag">Market Microstructure</span>
+            <span class="interest-tag">Macroeconomics</span>
+            <span class="interest-tag">Regime Detection</span>
+            <span class="interest-tag">SPY / Equities</span>
+            <span class="interest-tag">Iron Condors</span>
+            <span class="interest-tag">LEAPS</span>
+            <span class="interest-tag">Credit Risk</span>
+            <span class="interest-tag">Python / pandas</span>
+            <span class="interest-tag">0DTE Strategies</span>
+          </div>
+          <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border);">
+            <div class="info-card-title" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px;">Location</div>
+            <div style="font-family: var(--mono); font-size: 13px; color: var(--text-mid);">
+              Singapore · Open to remote & hybrid<br>
+              <span style="color: var(--text-dim);">Available for internships & full-time</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <span>© 2026 Cheng Hao · Built with intent, not a template.</span>
+    <span style="font-family: var(--mono);">SG · CS + Business · NTU</span>
+  </footer>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    // Scroll-triggered fade-ins
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Live clock in ticker
+    function updateTime() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-SG', { hour: '2-digit', minute: '2-digit', second: '2
